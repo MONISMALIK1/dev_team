@@ -14,7 +14,7 @@ that API, and the Lead integrates and reviews. Inspired by role-based agent fram
 
 from __future__ import annotations
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 from .agents import Agent, build_team
 from .core import TeamResult, run

@@ -10,7 +10,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from .llm import chat
-from .prompts import BACKEND_SYSTEM, FRONTEND_SYSTEM, LEAD_SYSTEM
+from .prompts import BACKEND_SYSTEM, FRONTEND_SYSTEM, LEAD_SYSTEM, REVIEWER_SYSTEM
 
 
 @dataclass
@@ -26,11 +26,12 @@ class Agent:
 
 
 def build_team() -> dict[str, Agent]:
-    """The default three-person team."""
+    """The default team: a lead, a backend and frontend engineer, and a reviewer."""
     return {
         "lead": Agent("Dana", "Lead Developer", LEAD_SYSTEM),
         "backend": Agent("Ben", "Backend Engineer", BACKEND_SYSTEM),
         "frontend": Agent("Fiona", "Frontend Engineer", FRONTEND_SYSTEM),
+        "reviewer": Agent("Riya", "Reviewer (Staff Engineer)", REVIEWER_SYSTEM),
     }
 
 

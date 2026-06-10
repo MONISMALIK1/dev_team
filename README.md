@@ -2,12 +2,14 @@
 
 [![tests](https://github.com/MONISMALIK1/dev_team/actions/workflows/test.yml/badge.svg)](https://github.com/MONISMALIK1/dev_team/actions/workflows/test.yml)
 
-A from-scratch, dependency-free **multi-agent software engineering team**. Give it a
-one-line spec and three role-specialized LLM agents collaborate to design it:
+A from-scratch, dependency-free **multi-agent software engineering team** that works the
+way professionals do — plan, build, **peer-review, revise**, then sign off. Give it a
+one-line spec and four role-specialized LLM agents collaborate:
 
-- **Lead Developer** — breaks the spec into a brief, then integrates & reviews.
-- **Backend Engineer** — designs the data model and API against the brief.
-- **Frontend Engineer** — designs the UI/components **against that backend's API**.
+- **Lead Developer** — writes a brief with **acceptance criteria**, then signs off against them.
+- **Backend Engineer** — designs the data model + an explicit **API contract**, with errors, auth, and trade-offs.
+- **Frontend Engineer** — designs the UI/components and states **against that backend's API**.
+- **Reviewer (Staff Engineer)** — a rigorous design review: **blockers / improvements / tests**, and a frontend↔backend mismatch check.
 
 Inspired by role-based agent frameworks like **MetaGPT** and **ChatDev**, built from
 scratch over any OpenAI-compatible backend.
@@ -15,13 +17,20 @@ scratch over any OpenAI-compatible backend.
 ## How they collaborate
 
 ```
-spec ─► Lead: brief ─► Backend: API design ─► Frontend: UI (built to that API) ─► Lead: integrate & review
-                 └──────────── context flows forward at every step ─────────────┘
+spec
+ └► Lead: brief + acceptance criteria
+     └► Backend: API contract, data model, errors, security, trade-offs
+         └► Frontend: components + loading/empty/error states, built to that API
+             └► Reviewer: BLOCKERS / IMPROVEMENTS / TESTS + mismatch check
+                 └► Backend & Frontend: revise to address the review
+                     └► Lead: sign off against each acceptance criterion
+       └──────────────── context flows forward at every step ────────────────┘
 ```
 
 Each agent answers **in character** (its role system prompt + the work so far), so the
-frontend is designed for the backend it will actually call, and the Lead's review can
-check that every screen has its endpoints and every endpoint is used.
+frontend is built to the backend it will actually call, the reviewer holds the work to
+the acceptance criteria, and the engineers **revise against the review before sign-off**.
+Pass `revise=False` (CLI `--quick`) to skip the revision round.
 
 ## Quickstart
 
@@ -48,11 +57,12 @@ export DEVTEAM_MODEL=qwen2.5:7b
 ```python
 from dev_team import run, build_team
 
-res = run("Build a to-do app with user accounts.")
-print(res.brief)      # Lead's breakdown
-print(res.backend)    # Backend Engineer's API design
-print(res.frontend)   # Frontend Engineer's UI design
-print(res.final)      # Lead's integration & review
+res = run("Build a to-do app with user accounts.")   # revise=True by default
+print(res.brief)      # Lead's breakdown + acceptance criteria
+print(res.backend)    # Backend Engineer's API design (revised against the review)
+print(res.frontend)   # Frontend Engineer's UI design (revised against the review)
+print(res.review)     # Reviewer's blockers / improvements / tests
+print(res.final)      # Lead's sign-off against the acceptance criteria
 
 # customize the team (e.g. swap in your own role prompts)
 team = build_team()
@@ -64,9 +74,9 @@ res = run("...", team=team)
 
 | Module | Responsibility |
 | --- | --- |
-| `agents.py` | the `Agent` (name + title + role system prompt) and the default team |
-| `prompts.py` | the three role prompts + the brief/backend/frontend/integrate task templates |
-| `core.py` | the collaboration pipeline → `TeamResult` |
+| `agents.py` | the `Agent` (name + title + role system prompt) and the default 4-role team |
+| `prompts.py` | the role prompts + brief/backend/frontend/**review**/**revise**/sign-off tasks |
+| `core.py` | the plan→build→review→revise→sign-off pipeline → `TeamResult` |
 | `llm.py` | backend-agnostic OpenAI-compatible client (OpenRouter or local) |
 
 The orchestration is pure stdlib and unit-tested offline; only the agents' calls touch
@@ -78,16 +88,19 @@ the network (via the injectable `chat_fn`).
 make test        # or: python -m unittest discover -s tests -t . -v
 ```
 
-10 offline tests with a scripted model: the collaboration order (brief → backend →
-frontend → integrate), that each agent answers through its own role prompt, and that
-context flows forward (the frontend sees the backend; the review sees both).
+11 offline tests with a scripted model: the full professional order (brief → backend →
+frontend → review → revise → sign-off), that each agent answers through its own role
+prompt, that context flows forward (frontend sees the backend, reviewer sees both,
+revisions receive the review, sign-off sees the revised work), and that `--quick` skips
+the revision round.
 
 ## Limitations
 
 - **Design, not deployment.** It produces designs/plans and code sketches, not a
   guaranteed-runnable, tested application. Treat the output as a strong first draft.
-- **No execution or critique loop.** It's a single forward pass; it doesn't run code or
-  iterate. (A reviewer/test loop is a natural extension.)
+- **It reviews, but doesn't execute.** There's a peer review + one revision round, but the
+  agents don't actually run code or tests. (Wiring in a real test/execute step is the
+  next extension.) Use `revise=False`/`--quick` if you just want a fast single pass.
 - **Quality is the base model's.** The agents are only as good as the model behind them.
 
 ## License

@@ -87,6 +87,15 @@ class ProfessionalPipelineTests(unittest.TestCase):
         run("Build a UNIQUE-SPEC-MARKER app.", chat_fn=fake)
         self.assertTrue(all("UNIQUE-SPEC-MARKER" in p for p in seen))
 
+    def test_to_markdown_renders_all_sections(self):
+        fake, _ = make_team_fake()
+        md = run("Build a to-do app.", chat_fn=fake).to_markdown()
+        for heading in ("# Build a to-do app.", "## Brief & acceptance criteria",
+                        "## Backend engineer (revised)", "## Frontend engineer (revised)",
+                        "## Reviewer", "## Lead — sign-off"):
+            self.assertIn(heading, md)
+        self.assertIn("SIGN-OFF", md)  # field bodies are included
+
 
 if __name__ == "__main__":
     unittest.main()

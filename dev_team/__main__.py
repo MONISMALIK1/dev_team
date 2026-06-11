@@ -35,6 +35,8 @@ def main() -> int:
                    help="Print the brief, each engineer's design, and the review — not just sign-off.")
     p.add_argument("--quick", action="store_true",
                    help="Skip the revision round (plan -> build -> review -> sign off).")
+    p.add_argument("--markdown", action="store_true",
+                   help="Print the whole deliverable as one Markdown document (good for > file.md).")
     args = p.parse_args()
 
     if not args.spec:
@@ -45,6 +47,9 @@ def main() -> int:
           file=sys.stderr, flush=True)
 
     res = run(args.spec, model=args.model, revise=not args.quick)
+    if args.markdown:
+        print(res.to_markdown())
+        return 0
     if args.show_work:
         _block("LEAD — brief & acceptance criteria", res.brief)
         _block("BACKEND ENGINEER" + (" (revised)" if res.revised else ""), res.backend)

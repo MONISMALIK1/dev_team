@@ -34,6 +34,18 @@ class TeamResult:
     final: str        # Lead's sign-off against the acceptance criteria
     revised: bool = False
 
+    def to_markdown(self) -> str:
+        """Render the whole deliverable as one Markdown document (e.g. to save/share)."""
+        tag = " (revised)" if self.revised else ""
+        return "\n\n".join([
+            f"# {self.spec}",
+            "## Brief & acceptance criteria\n\n" + self.brief,
+            f"## Backend engineer{tag}\n\n" + self.backend,
+            f"## Frontend engineer{tag}\n\n" + self.frontend,
+            "## Reviewer — blockers / improvements / tests\n\n" + self.review,
+            "## Lead — sign-off\n\n" + self.final,
+        ]) + "\n"
+
 
 def run(spec: str, team: dict[str, Agent] | None = None, model: str | None = None,
         revise: bool = True, chat_fn=chat) -> TeamResult:

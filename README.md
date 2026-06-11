@@ -52,6 +52,17 @@ export DEVTEAM_MODEL=qwen2.5:7b
 
 (You can also run without installing: `python -m dev_team "..."` from the repo root.)
 
+## Example output
+
+[`examples/task_manager_api.md`](examples/task_manager_api.md) is a real, unedited run on
+a task-manager REST API spec — watch the **Reviewer flag six concrete blockers** and the
+engineers **revise to fix each** before the Lead signs off. Generate your own as a single
+document with `--markdown`:
+
+```bash
+dev_team "Build a URL shortener with click analytics." --markdown > shortener.md
+```
+
 ## Library use
 
 ```python
@@ -102,6 +113,16 @@ the revision round.
   agents don't actually run code or tests. (Wiring in a real test/execute step is the
   next extension.) Use `revise=False`/`--quick` if you just want a fast single pass.
 - **Quality is the base model's.** The agents are only as good as the model behind them.
+
+## Part of a series
+
+From-scratch, dependency-free agent & LLM-reasoning projects:
+[mixture_of_agents](https://github.com/MONISMALIK1/mixture_of_agents) ·
+[rewoo](https://github.com/MONISMALIK1/rewoo) ·
+[react_agent](https://github.com/MONISMALIK1/react_agent) ·
+[reflexion](https://github.com/MONISMALIK1/reflexion) ·
+[chain_of_verification](https://github.com/MONISMALIK1/chain_of_verification) ·
+**dev_team** (this repo).
 
 ## License
 
